@@ -1,10 +1,11 @@
 import { useEffect, useState } from 'react'
 
-const TICK_MS = 1000
+const TICK_MS = 60_000
 
 /**
- * Live `Date` for the header clock, countdowns, and kickoff locking.
- * Keeps `Application` free of interval/timer details.
+ * Current `Date`, refreshed once per minute for the header clock, relative
+ * kickoff phrases, and read-only prediction locking. Keeps `Application` free
+ * of interval details. Kickoff lock can lag by up to one tick vs real time.
  */
 export function useNow(): Date {
   const [now, setNow] = useState(() => new Date())

@@ -1,6 +1,8 @@
-import type { ReactNode } from 'react'
 import type { AppView } from '../../navigation'
-import { ClockDisplay } from '../ClockDisplay'
+import { AppPages } from '../../app/AppPages'
+import type { PredictionsMap } from '../../predictionsStorage'
+import type { ScorePrediction } from '../../types'
+import { AppHeader } from './AppHeader'
 import { MainNav } from './MainNav'
 
 type Props = {
@@ -8,35 +10,33 @@ type Props = {
   onSelectView: (view: AppView) => void
   now: Date
   totalPoints: number
-  children: ReactNode
+  predictions: PredictionsMap
+  onSavePrediction: (matchId: string, prediction: ScorePrediction) => void
 }
 
 /**
- * Shell: header (title, clock, points) + scrollable main + fixed bottom nav.
- * `children` is the current page — keeps layout separate from page logic.
+ * Full app chrome: header → routed pages (`AppPages`) → bottom nav.
+ * No slot props — the main column is always `AppPages` so this file reads
+ * top-to-bottom like the UI.
  */
 export function AppLayout({
   activeView,
   onSelectView,
   now,
   totalPoints,
-  children,
+  predictions,
+  onSavePrediction,
 }: Props) {
   return (
     <div className="layout">
-      <header className="layout__header">
-        <h1 className="layout__title">World Cup pool</h1>
-        <p className="layout__tagline">
-          Learning app — predictions stay in this browser until you add an API.
-        </p>
-        <ClockDisplay now={now} />
-        <div className="layout__scoreboard" aria-live="polite">
-          <span className="layout__scoreboard-label">Your points</span>
-          <span className="layout__scoreboard-value">{totalPoints}</span>
-        </div>
-      </header>
+      <AppHeader now={now} totalPoints={totalPoints} />
 
-      <main className="layout__content">{children}</main>
+      <AppPages
+        activeView={activeView}
+        now={now}
+        predictions={predictions}
+        onSavePrediction={onSavePrediction}
+      />
 
       <MainNav active={activeView} onSelect={onSelectView} />
     </div>

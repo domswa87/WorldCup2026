@@ -11,8 +11,8 @@ const MS = {
 } as const
 
 /**
- * Wall clock for the header — updates whenever the parent passes a fresh `now`.
- * `second: '2-digit'` makes it obvious the page is "live".
+ * Wall clock for the header — updates when the parent passes a fresh `now`
+ * (same cadence as `useNow`, currently once per minute).
  */
 export function formatLocalClock(now: Date): string {
   return new Intl.DateTimeFormat(undefined, {
@@ -21,7 +21,6 @@ export function formatLocalClock(now: Date): string {
     day: 'numeric',
     hour: '2-digit',
     minute: '2-digit',
-    second: '2-digit',
   }).format(now)
 }
 

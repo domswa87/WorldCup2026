@@ -1,3 +1,4 @@
+import type { ReactNode } from 'react'
 import type { AppView } from '../navigation'
 import { MOCK_MATCHES } from '../mockMatches'
 import type { PredictionsMap } from '../predictionsStorage'
@@ -8,8 +9,8 @@ import { ResultsPage } from '../pages/ResultsPage'
 import { TablePage } from '../pages/TablePage'
 
 /**
- * Maps `activeView` → page component. No state: easy to read and to swap for
- * real routes (`react-router`) later.
+ * Maps `activeView` → page component and wraps it in `<main className="layout__content">`
+ * (scroll region + primary landmark). No state — easy to swap for `react-router` later.
  */
 type Props = {
   activeView: AppView
@@ -24,11 +25,13 @@ export function AppPages({
   predictions,
   onSavePrediction,
 }: Props) {
+  let page: ReactNode
   switch (activeView) {
     case 'account':
-      return <AccountPage />
+      page = <AccountPage />
+      break
     case 'bets':
-      return (
+      page = (
         <BetsPage
           matches={MOCK_MATCHES}
           now={now}
@@ -36,9 +39,14 @@ export function AppPages({
           onSavePrediction={onSavePrediction}
         />
       )
+      break
     case 'results':
-      return <ResultsPage matches={MOCK_MATCHES} predictions={predictions} />
+      page = <ResultsPage matches={MOCK_MATCHES} predictions={predictions} />
+      break
     case 'table':
-      return <TablePage />
+      page = <TablePage />
+      break
   }
+
+  return <main className="layout__content">{page}</main>
 }

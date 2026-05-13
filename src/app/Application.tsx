@@ -10,7 +10,6 @@ import {
 } from '../predictionsStorage'
 import { sumPoolPoints } from '../poolMath'
 import type { ScorePrediction } from '../types'
-import { AppPages } from './AppPages'
 
 /**
  * `src/app/` — application shell: state, side effects, wiring layout + pages.
@@ -44,13 +43,8 @@ export function Application() {
       onSelectView={setActiveView}
       now={now}
       totalPoints={pointsTotal}
-    >
-      <AppPages
-        activeView={activeView}
-        now={now}
-        predictions={predictions}
-        onSavePrediction={savePrediction}
-      />
-    </AppLayout>
+      predictions={predictions}
+      onSavePrediction={savePrediction}
+    />
   )
 }
