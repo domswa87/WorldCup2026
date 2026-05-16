@@ -9,7 +9,7 @@ import type { Match } from './types'
 export const MOCK_MATCHES: Match[] = [
   {
     id: 'm1',
-    kickoff: '2026-05-11T15:15:00.000Z',
+    kickoff: '2026-05-15T15:15:00.000Z',
     homeTeam: 'Mexico',
     awayTeam: 'South Africa',
     //finalResult: { home: 2, away: 1 },

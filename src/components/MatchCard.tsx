@@ -6,10 +6,6 @@ import {
   formatKickoffWasRelative,
 } from '../lib/timeDisplay'
 
-/**
- * `Intl.DateTimeFormat` turns a `Date` into a human string using the user's
- * locale and time zone (good for mobile users traveling).
- */
 const kickoffFormatter = new Intl.DateTimeFormat(undefined, {
   weekday: 'short',
   month: 'short',
@@ -20,73 +16,97 @@ const kickoffFormatter = new Intl.DateTimeFormat(undefined, {
 
 type MatchCardProps = {
   match: Match
-  /** Same `Date` instance as the header clock — drives countdown + lock timing. */
   now: Date
-  /** Last saved prediction for this match, if any. */
   saved?: ScorePrediction
-  /**
-   * When `true`, inputs cannot change and the save button is hidden.
-   * Parent computes this from **current time vs kickoff** (and final results).
-   */
   readOnly: boolean
-  /** Called when the user confirms a new prediction (only while editable). */
   onSave: (matchId: string, prediction: ScorePrediction) => void
 }
 
 /**
- * Parse a score input string into a non-negative integer, or `null` if empty/invalid.
- * We keep inputs as strings in React state so the user can clear the field.
+ * The two inputs are plain text while the user types.
+ * We only turn them into numbers when they press Save (see `parseGoalText`).
  */
-function parseScore(raw: string): number | null {
-  if (raw.trim() === '') return null
-  const n = Number.parseInt(raw, 10)
-  if (!Number.isFinite(n) || n < 0 || n > 20) return null
-  return n
+type ScoreDraft = {
+  homeText: string
+  awayText: string
 }
 
 /**
- * One row/card in the schedule list.
+ * Parent owns the real saved prediction. This card keeps a local copy in text
+ * fields so typing does not hit `localStorage` on every keypress.
  *
- * State split:
- * - `saved` comes from the parent (global + `localStorage`) — "source of truth".
- * - `homeRaw` / `awayRaw` are local drafts so typing does not write to disk on every keypress.
+ * This function is the only place that decides "what should the inputs show
+ * when we load / when saved data changes?".
  */
-export function MatchCard({ match, now, saved, readOnly, onSave }: MatchCardProps) {
-  const [homeRaw, setHomeRaw] = useState(() =>
-    saved !== undefined ? String(saved.home) : '',
-  )
-  const [awayRaw, setAwayRaw] = useState(() =>
-    saved !== undefined ? String(saved.away) : '',
-  )
+function draftFromSaved(saved: ScorePrediction | undefined): ScoreDraft {
+  if (saved === undefined) {
+    return { homeText: '', awayText: '' }
+  }
+  return {
+    homeText: String(saved.home),
+    awayText: String(saved.away),
+  }
+}
 
-  /**
-   * When `saved` changes from outside (e.g. after reload), sync the draft fields.
-   * Dependency array lists values this effect "subscribes" to.
-   */
+/**
+ * Turn one input box into a goal count, or `null` if the user has not entered
+ * a valid number yet.
+ */
+function parseGoalText(text: string): number | null {
+  const trimmed = text.trim()
+  if (trimmed === '') {
+    return null
+  }
+  const n = Number.parseInt(trimmed, 10)
+  if (Number.isNaN(n)) {
+    return null
+  }
+  if (n < 0 || n > 20) {
+    return null
+  }
+  return n
+}
+
+export function MatchCard({ match, now, saved, readOnly, onSave }: MatchCardProps) {
+  const [draft, setDraft] = useState<ScoreDraft>(() => draftFromSaved(saved))
+
   useEffect(() => {
-    setHomeRaw(saved !== undefined ? String(saved.home) : '')
-    setAwayRaw(saved !== undefined ? String(saved.away) : '')
+    setDraft(draftFromSaved(saved))
   }, [saved, match.id])
 
-  /** We have an official result → show points breakdown. */
-  const hasFinalScore = match.finalResult !== undefined
+  const matchIsFinished = match.finalResult !== undefined
 
-  const homeGoals = parseScore(homeRaw)
-  const awayGoals = parseScore(awayRaw)
+  const homeGoals = parseGoalText(draft.homeText)
+  const awayGoals = parseGoalText(draft.awayText)
+  const userEnteredTwoValidGoals = homeGoals !== null && awayGoals !== null
 
-  /** User can save only when allowed to edit and both sides are valid numbers. */
-  const canSave =
-    !readOnly && !hasFinalScore && homeGoals !== null && awayGoals !== null
+  const canClickSave =
+    !readOnly && !matchIsFinished && userEnteredTwoValidGoals
 
   const pointsBreakdown =
-    hasFinalScore && saved && match.finalResult
+    matchIsFinished && saved && match.finalResult
       ? scorePrediction(saved, match.finalResult)
       : null
 
-  /** Shown only while bets are still open — see `formatBetsClosingRelative`. */
   const closingPhrase = formatBetsClosingRelative(match.kickoff, now)
-  /** Shown on locked cards before a final exists — how long since kickoff. */
   const kickoffAgoPhrase = formatKickoffWasRelative(match.kickoff, now)
+
+  function setHomeDigits(value: string) {
+    const digitsOnly = value.replace(/\D/g, '')
+    setDraft((previous) => ({ ...previous, homeText: digitsOnly }))
+  }
+
+  function setAwayDigits(value: string) {
+    const digitsOnly = value.replace(/\D/g, '')
+    setDraft((previous) => ({ ...previous, awayText: digitsOnly }))
+  }
+
+  function handleSaveClick() {
+    if (homeGoals === null || awayGoals === null) {
+      return
+    }
+    onSave(match.id, { home: homeGoals, away: awayGoals })
+  }
 
   return (
     <article className="match-card">
@@ -94,20 +114,20 @@ export function MatchCard({ match, now, saved, readOnly, onSave }: MatchCardProp
         <time dateTime={match.kickoff}>
           {kickoffFormatter.format(new Date(match.kickoff))}
         </time>
-        {hasFinalScore && match.finalResult && (
+        {matchIsFinished && match.finalResult && (
           <span className="match-card__final" aria-label="Final score">
             FT {match.finalResult.home}–{match.finalResult.away}
           </span>
         )}
-        {!hasFinalScore && !readOnly && (
+        {!matchIsFinished && !readOnly && (
           <span className="match-card__badge match-card__badge--open">Open</span>
         )}
-        {!hasFinalScore && readOnly && (
+        {!matchIsFinished && readOnly && (
           <span className="match-card__badge match-card__badge--locked">Locked</span>
         )}
       </header>
 
-      {!hasFinalScore && !readOnly && closingPhrase && (
+      {!matchIsFinished && !readOnly && closingPhrase && (
         <p className="match-card__countdown">
           <span className="match-card__countdown-label">Bets close</span>{' '}
           <span className="match-card__countdown-value">{closingPhrase}</span>
@@ -133,8 +153,8 @@ export function MatchCard({ match, now, saved, readOnly, onSave }: MatchCardProp
             pattern="[0-9]*"
             maxLength={2}
             disabled={readOnly}
-            value={homeRaw}
-            onChange={(e) => setHomeRaw(e.target.value.replace(/\D/g, ''))}
+            value={draft.homeText}
+            onChange={(event) => setHomeDigits(event.target.value)}
             aria-label={`Predicted goals for ${match.homeTeam}`}
             placeholder="0"
           />
@@ -150,37 +170,33 @@ export function MatchCard({ match, now, saved, readOnly, onSave }: MatchCardProp
             pattern="[0-9]*"
             maxLength={2}
             disabled={readOnly}
-            value={awayRaw}
-            onChange={(e) => setAwayRaw(e.target.value.replace(/\D/g, ''))}
+            value={draft.awayText}
+            onChange={(event) => setAwayDigits(event.target.value)}
             aria-label={`Predicted goals for ${match.awayTeam}`}
             placeholder="0"
           />
         </label>
       </div>
 
-      {readOnly && !hasFinalScore && (
+      {readOnly && !matchIsFinished && (
         <p className="match-card__hint match-card__hint--lock">
           Kickoff was {kickoffAgoPhrase ?? 'moments ago'} — your saved pick (if any) stays
           as-is until we add live scores.
         </p>
       )}
 
-      {!readOnly && !hasFinalScore && (
+      {!readOnly && !matchIsFinished && (
         <button
           type="button"
           className="match-card__save"
-          disabled={!canSave}
-          onClick={() => {
-            if (homeGoals !== null && awayGoals !== null) {
-              onSave(match.id, { home: homeGoals, away: awayGoals })
-            }
-          }}
+          disabled={!canClickSave}
+          onClick={handleSaveClick}
         >
           Save prediction
         </button>
       )}
 
-      {hasFinalScore && (
+      {matchIsFinished && (
         <div className="match-card__result" role="status">
           {!saved && <p className="match-card__hint">No prediction saved.</p>}
           {saved && pointsBreakdown && (
