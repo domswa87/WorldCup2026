@@ -1,6 +1,6 @@
-import { scorePrediction } from '../scoring'
-import type { Match } from '../types'
-import type { PredictionsMap } from '../predictionsStorage'
+import { scorePrediction } from '../lib/scoring'
+import type { Match } from '../lib/types'
+import type { PredictionsMap } from '../lib/predictionsStorage'
 
 type Props = {
   matches: Match[]

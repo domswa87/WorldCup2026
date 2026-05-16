@@ -4,8 +4,8 @@ const TICK_MS = 60_000
 
 /**
  * Current `Date`, refreshed once per minute for the header clock, relative
- * kickoff phrases, and read-only prediction locking. Keeps `Application` free
- * of interval details. Kickoff lock can lag by up to one tick vs real time.
+ * kickoff phrases, and read-only prediction locking. Kickoff lock can lag by
+ * up to one tick vs real time.
  */
 export function useNow(): Date {
   const [now, setNow] = useState(() => new Date())

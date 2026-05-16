@@ -1,7 +1,7 @@
 import { Application } from './app/Application'
 import './App.css'
 
-/** Vite entry mounts this; all real logic lives under `src/app/`. */
+/** Vite entry mounts `Application` from `src/app/`. */
 export default function App() {
   return <Application />
 }

@@ -1,19 +1,21 @@
 import { useEffect, useMemo, useState } from 'react'
-import { AppLayout } from '../components/layout/AppLayout'
+import { AppHeader } from '../components/layout/AppHeader'
+import { MainNav } from '../components/layout/MainNav'
 import { useNow } from '../hooks/useNow'
-import type { AppView } from '../navigation'
-import { MOCK_MATCHES } from '../mockMatches'
+import type { AppView } from '../lib/navigation'
+import { MOCK_MATCHES } from '../lib/mockMatches'
 import {
   loadPredictions,
   savePredictions,
   type PredictionsMap,
-} from '../predictionsStorage'
-import { sumPoolPoints } from '../poolMath'
-import type { ScorePrediction } from '../types'
+} from '../lib/predictionsStorage'
+import { sumPoolPoints } from '../lib/poolMath'
+import type { ScorePrediction } from '../lib/types'
+import { AppPages } from './AppPages'
 
 /**
- * `src/app/` — application shell: state, side effects, wiring layout + pages.
- * Entry file `App.tsx` only mounts this so the project structure stays obvious.
+ * Root UI: predictions, tab state, persistence, header, routed pages, nav.
+ * Vite mounts this via `App.tsx`.
  */
 export function Application() {
   const now = useNow()
@@ -38,13 +40,17 @@ export function Application() {
   }
 
   return (
-    <AppLayout
-      activeView={activeView}
-      onSelectView={setActiveView}
-      now={now}
-      totalPoints={pointsTotal}
-      predictions={predictions}
-      onSavePrediction={savePrediction}
-    />
+    <div className="layout">
+      <AppHeader now={now} totalPoints={pointsTotal} />
+
+      <AppPages
+        activeView={activeView}
+        now={now}
+        predictions={predictions}
+        onSavePrediction={savePrediction}
+      />
+
+      <MainNav active={activeView} onSelect={setActiveView} />
+    </div>
   )
 }

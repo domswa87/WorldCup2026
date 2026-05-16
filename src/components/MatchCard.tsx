@@ -1,10 +1,10 @@
 import { useEffect, useState } from 'react'
-import type { Match, ScorePrediction } from '../types'
-import { scorePrediction } from '../scoring'
+import type { Match, ScorePrediction } from '../lib/types'
+import { scorePrediction } from '../lib/scoring'
 import {
   formatBetsClosingRelative,
   formatKickoffWasRelative,
-} from '../timeDisplay'
+} from '../lib/timeDisplay'
 
 /**
  * `Intl.DateTimeFormat` turns a `Date` into a human string using the user's

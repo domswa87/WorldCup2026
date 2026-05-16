@@ -1,4 +1,4 @@
-import { formatLocalClock } from '../timeDisplay'
+import { formatLocalClock } from '../lib/timeDisplay'
 
 /** Shows `now` — no hooks; parent owns the ticking `Date`. */
 type Props = { now: Date }

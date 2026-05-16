@@ -1,7 +1,7 @@
 import { MatchCard } from '../components/MatchCard'
-import { isPredictionReadOnly } from '../matchTiming'
-import type { Match, ScorePrediction } from '../types'
-import type { PredictionsMap } from '../predictionsStorage'
+import { isPredictionReadOnly } from '../lib/matchTiming'
+import type { Match, ScorePrediction } from '../lib/types'
+import type { PredictionsMap } from '../lib/predictionsStorage'
 
 type Props = {
   matches: Match[]

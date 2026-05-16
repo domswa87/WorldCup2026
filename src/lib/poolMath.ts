@@ -1,6 +1,6 @@
-import type { Match } from './types'
-import type { PredictionsMap } from './predictionsStorage'
-import { scorePrediction } from './scoring'
+import type { Match } from './types.ts'
+import type { PredictionsMap } from './predictionsStorage.ts'
+import { scorePrediction } from './scoring.ts'
 
 /** Sum points for matches that already have a final score. */
 export function sumPoolPoints(matches: Match[], predictions: PredictionsMap): number {

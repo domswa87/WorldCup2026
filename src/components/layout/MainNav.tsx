@@ -1,4 +1,4 @@
-import { MAIN_TABS, type AppView } from '../../navigation'
+import { MAIN_TABS, type AppView } from '../../lib/navigation'
 
 type Props = {
   active: AppView
