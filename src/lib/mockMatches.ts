@@ -1,18 +1,16 @@
-import type { Match } from './types'
+type Match = {
+  id: string
+  kickoff: string
+  homeTeam: string
+  awayTeam: string
+}
 
-/**
- * Temporary in-memory schedule.
- * Replace this array with `fetch()` results when you add a backend.
- *
- * Tip: keep `kickoff` in UTC (`...Z`) in data; the UI formats it in the user's locale.
- */
 export const MOCK_MATCHES: Match[] = [
   {
     id: 'm1',
     kickoff: '2026-05-15T15:15:00.000Z',
     homeTeam: 'Mexico',
     awayTeam: 'South Africa',
-    //finalResult: { home: 2, away: 1 },
   },
   {
     id: 'm2',
@@ -25,7 +23,6 @@ export const MOCK_MATCHES: Match[] = [
     kickoff: '2026-05-11T16:25:00.000Z',
     homeTeam: 'Spain',
     awayTeam: 'England',
-    //finalResult: { home: 1, away: 1 },
   },
   {
     id: 'm4',
