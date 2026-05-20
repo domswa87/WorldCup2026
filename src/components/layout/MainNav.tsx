@@ -1,3 +1,5 @@
+import BottomNavigation from '@mui/material/BottomNavigation'
+import BottomNavigationAction from '@mui/material/BottomNavigationAction'
 import { MAIN_TABS, type AppView } from '../../lib/navigation'
 
 type Props = {
@@ -7,17 +9,14 @@ type Props = {
 
 export function MainNav({ active, onSelect }: Props) {
   return (
-    <nav className="main-nav">
+    <BottomNavigation
+      value={active}
+      onChange={(_, view) => onSelect(view as AppView)}
+      showLabels
+    >
       {MAIN_TABS.map(({ view, label }) => (
-        <button
-          key={view}
-          type="button"
-          onClick={() => onSelect(view)}
-        >
-          {label}
-          {active === view ? ' (active)' : ''}
-        </button>
+        <BottomNavigationAction key={view} value={view} label={label} />
       ))}
-    </nav>
+    </BottomNavigation>
   )
 }

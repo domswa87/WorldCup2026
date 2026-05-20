@@ -1,3 +1,5 @@
+import Typography from '@mui/material/Typography'
+
 export function ResultsView() {
-  return <p>Results</p>
+  return <Typography>Results</Typography>
 }

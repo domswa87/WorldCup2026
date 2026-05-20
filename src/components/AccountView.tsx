@@ -1,3 +1,5 @@
+import Typography from '@mui/material/Typography'
+
 export function AccountView() {
-  return <p>Account</p>
+  return <Typography>Account</Typography>
 }

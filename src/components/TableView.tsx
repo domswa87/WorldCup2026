@@ -1,3 +1,5 @@
+import Typography from '@mui/material/Typography'
+
 export function TableView() {
-  return <p>Table</p>
+  return <Typography>Table</Typography>
 }
